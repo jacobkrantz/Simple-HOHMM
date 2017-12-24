@@ -1,7 +1,7 @@
 from copy import deepcopy
 
-from model import HiddenMarkovModel as HMM
-from utility import init_matrix
+from .model import HiddenMarkovModel as HMM
+from .utility import init_matrix
 
 class HiddenMarkovModelBuilder:
 

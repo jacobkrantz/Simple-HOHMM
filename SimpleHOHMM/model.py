@@ -1,6 +1,8 @@
+from __future__ import print_function
+
 from math import log
 
-from utility import init_matrix, init_3d_matrix
+from .utility import init_matrix, init_3d_matrix
 
 class HiddenMarkovModel:
     """

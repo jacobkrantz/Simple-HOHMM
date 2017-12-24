@@ -1,2 +1,2 @@
-from builder import HiddenMarkovModelBuilder
-from model import HiddenMarkovModel
+from .builder import HiddenMarkovModelBuilder
+from .model import HiddenMarkovModel
