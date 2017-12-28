@@ -1,5 +1,6 @@
 
 from copy import deepcopy
+import random as ran
 
 def init_matrix(rows, columns, data_type="float"):
     """
@@ -59,3 +60,35 @@ def init_3d_matrix(x, y, z, data_type="float"):
         matrix.append(deepcopy(d2))
 
     return matrix
+
+def init_matrix_uniform(row_len, column_len):
+    """
+    Initialize a matrix such that all rows sum to 1 and
+    all elements in a row are the same.
+    Args:
+        row_len (int): Number of rows the matrix will have.
+        column_len (int): Number of columns matrix will have.
+    Returns:
+        list<list<float>>: uniformly distributed matrix.
+    """
+    value = float(1.0 / column_len)
+    row = list(map(lambda x : value, range(column_len)))
+    return list(map(lambda x : deepcopy(row), range(row_len)))
+
+def init_matrix_random(row_len, column_len):
+    """
+    Initialize a matrix such that all rows sum to 1 and elements are
+    generated pseudo-randomly.
+    Args:
+        row_len (int): Number of rows the matrix will have.
+        column_len (int): Number of columns matrix will have.
+    Returns:
+        list<list<float>>: randomly distributed matrix.
+    """
+    return list(map(lambda x : _make_random_row(column_len), range(row_len)))
+
+def _make_random_row(num_elements):
+    """ Generates a list of row_len random floats that sum to 1. """
+    row = [ran.random() for i in range(num_elements)]
+    s = sum(row)
+    return [ i / s for i in row ]

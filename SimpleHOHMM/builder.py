@@ -1,7 +1,9 @@
 from copy import deepcopy
+from itertools import product
+import random as ran
 
 from .model import HiddenMarkovModel as HMM
-from .utility import init_matrix
+from .utility import init_matrix, init_matrix_uniform, init_matrix_random
 
 class HiddenMarkovModelBuilder:
 
@@ -29,13 +31,61 @@ class HiddenMarkovModelBuilder:
         self._obs_sequences += o_lst
         self._state_sequences += s_lst
 
+    def build_unsupervised(self, single_states, all_obs, distribution="random", highest_order=1):
+        """
+        Builds a Hidden Markov Model based on a uniform probability
+        distribution.
+        Args:
+            single_states (list<>): list of unique elements detailing all
+                possible hidden states the model should account for.
+            all_obs (list<>): list of unique elements detailing all possible
+                observation elements the model should account for.
+            distribution (string): either 'random' for a random probability
+                distribution, or 'uniform' for a uniform probability
+                distribution. defaults to 'random'.
+            highest_order (int): History window of hidden states. Defaults to 1.
+        Returns:
+            HiddenMarkovModel: capable of evaluating, decoding, and learning.
+        """
+        if(distribution not in ('random', 'uniform')):
+            raise ValueError("parameter 'distribution must be either 'random' or 'uniform'")
+
+        single_states = list(set(single_states))
+        all_obs = list(set(all_obs))
+        all_states = self._make_permutations(single_states, highest_order)
+        num_states = len(all_states)
+        if(distribution == 'uniform'):
+            trans_probs = init_matrix_uniform(num_states, num_states)
+            emission_probs = init_matrix_uniform(num_states, len(all_obs))
+            start_probs = self._init_uniform_start_probs(
+                single_states,
+                highest_order
+            )
+        else: # 'random'
+            trans_probs = init_matrix_random(num_states, num_states)
+            emission_probs = init_matrix_random(num_states, len(all_obs))
+            start_probs = self._init_random_start_probs(
+                single_states,
+                highest_order
+            )
+
+        # combine all parameters to build final model
+        return HMM(
+            trans_probs,
+            emission_probs,
+            start_probs,
+            all_obs,
+            all_states,
+            single_states=single_states,
+            order=highest_order
+        )
+
     def build(self, highest_order=1, k_smoothing=0.0):
         """
         Builds a Hidden Markov Model based on the previously added
             training examples.
         Args:
-            highest_order (int): History window of hidden states. Currently
-                only supports 1 or 2.
+            highest_order (int): History window of hidden states. Defaults to 1.
             k_smoothing (float): Parameter for add-k smoothing, a
                 generalization of Laplace smoothing. Defaults to 0.0.
         Returns:
@@ -207,6 +257,32 @@ class HiddenMarkovModelBuilder:
 
         return start_probs_dict
 
+    def _init_uniform_start_probs(self, states, highest_order):
+        start_probs = []
+        for i in range(highest_order):
+            start_probs_dict = dict()
+            states_of_order = self._make_permutations(states, i + 1)
+            value = float(1.0 / len(states_of_order))
+            for i, state in enumerate(states_of_order):
+                start_probs_dict[state] = value
+
+            start_probs.append(start_probs_dict)
+
+        return start_probs
+
+    def _init_random_start_probs(self, states, highest_order):
+        start_probs = []
+        for i in range(highest_order):
+            start_probs_dict = dict()
+            states_of_order = self._make_permutations(states, i + 1)
+            values = [ran.random() for i in range(len(states_of_order))]
+            for i, state in enumerate(states_of_order):
+                start_probs_dict[state] = values[i] / sum(values)
+
+            start_probs.append(start_probs_dict)
+
+        return start_probs
+
     def _make_higher_order_states(self, state_sequences, order):
         """
         Args:
@@ -237,3 +313,19 @@ class HiddenMarkovModelBuilder:
             new_sequences.append(new_sequence)
 
         return new_sequences
+
+    def _make_permutations(self, states, highest_order):
+        """ makes a list of all permutation states from a single state. """
+        if(highest_order == 1):
+            return states
+
+        states_lists = product(states, repeat = highest_order)
+        new_states = []
+        for states_lst in states_lists:
+            state = ""
+            for i in range(len(states_lst)):
+                state += (states_lst[i] + '-')
+
+            new_states.append(state[:len(state)-1])
+
+        return new_states
