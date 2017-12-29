@@ -20,7 +20,7 @@ Simple-HOHMM is an end-to-end sequence classifier using Hidden Markov Models. Le
 * Discrete (Multinomial) emissions only.
 * Ergotic state transitions are assumed by the model, but setting certain probabilities to zero effectively emulates unreachable states.
 * Smoothing of model parameters is done with additive k-smoothing to avoid cases of zero probability, especially useful for higher order modeling.
-* `HiddenMarkovModel` can be trained using `HiddenMarkovModelBuiler` or by passing in explicit HMM parameter values.
+* `HiddenMarkovModel` can be trained using `HiddenMarkovModelBuilder` or by passing in explicit HMM parameter values.
 
 ## Getting Started
 
@@ -63,3 +63,22 @@ obs =  ['normal', 'cold', 'dizzy']
 states = hmm.decode(obs)
 print(states) # prints: ['healthy', 'healthy', 'fever']
 ```
+## Contributions
+Contributions are welcome. We have not hashed out exactly what that will look like yet. For now, feel free to fork the repository and dive in as you see fit, whether that is making/improving documentation, tutorials, test cases, issues, or source code.
+
+#### Testing
+Run the unit tests before opening a pull request to ensure the build does not break.   
+* Testing is done through the Python module `unittest`.
+* Automated testing is performed by Travis CI.
+* All test cases are located in `/test`.  
+
+To run the entire suite of tests, execute:  
+`python -m unittest discover -s test`
+
+#### Viewing Code Coverage  
+View code coverage before opening a pull request to ensure coverage is maintained or improved. To do this, you must have `coverage` installed. If you do not, run:  
+`$ pip install coverage`  
+run the unit tests using coverage:  
+`$ coverage run -m unittest discover -s test`  
+View the coverage report:  
+`$ coverage report -m`  
