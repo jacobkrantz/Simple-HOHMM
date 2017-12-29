@@ -10,6 +10,8 @@ class HiddenMarkovModelBuilder:
     def __init__(self):
         self._obs_sequences = list()
         self._state_sequences = list()
+        self._single_states = None
+        self._all_obs = None
 
     def add_training_example(self, o, s):
         """
@@ -31,15 +33,85 @@ class HiddenMarkovModelBuilder:
         self._obs_sequences += o_lst
         self._state_sequences += s_lst
 
-    def build_unsupervised(self, single_states, all_obs, distribution="random", highest_order=1):
+    def set_single_states(self, single_states):
+        """
+        Sets the singular hidden states vocabulary for the HMM. If called
+        multiple times, the vocabulary is overwritten.
+        Args:
+            single_states (list<string>): list of possible singular hidden
+                states. These states should disregard HMM order.
+        """
+        self._single_states = single_states
+
+    def set_all_obs(self, all_obs):
+        """
+        Sets the observation vocabulary for the HMM. If called multiple
+        times, the vocabulary is overwritten.
+        Args:
+            all_obs (list<string>): list of possible model observations.
+        """
+        self._all_obs = all_obs
+
+    def build(self, highest_order=1, k_smoothing=0.0):
+        """
+        Builds a Hidden Markov Model based on the previously added
+            training examples.
+        Args:
+            highest_order (int): History window of hidden states. Defaults to 1.
+            k_smoothing (float): Parameter for add-k smoothing, a
+                generalization of Laplace smoothing. Defaults to 0.0.
+        Returns:
+            HiddenMarkovModel: capable of evaluating, decoding, and learning.
+        """
+        if(highest_order < 1):
+            raise ValueError("highest order must be 1 or greater.")
+
+        # build state and observation sets
+        if(self._all_obs is None):
+            all_obs = self._get_unique_elements(self._obs_sequences)
+        else:
+            all_obs = self._all_obs
+
+        if(self._single_states is None):
+            single_states = self._get_higher_order_states(self._state_sequences, 1)
+            all_states = self._get_higher_order_states(self._state_sequences, highest_order)
+        else:
+            single_states = self._single_states
+            all_states = self._make_permutations(single_states, highest_order)
+
+        # build probability distribution parameters
+        start_probs = list()
+        for i in range(highest_order):
+            start_probs.append(self._calculate_start_probs(
+                self._state_sequences,
+                i+1,
+                k_smoothing
+            ))
+        trans_probs = self._calculate_transition_probs(all_states, highest_order, k_smoothing)
+        emission_probs = self._calculate_emission_probs(single_states, all_obs, k_smoothing)
+
+        # combine all parameters to build final model
+        return HMM(
+            trans_probs,
+            emission_probs,
+            start_probs,
+            all_obs,
+            all_states,
+            single_states=single_states,
+            order=highest_order
+        )
+
+    def build_unsupervised(self, single_states=None, all_obs=None, distribution="random", highest_order=1):
         """
         Builds a Hidden Markov Model based on a uniform probability
         distribution.
         Args:
             single_states (list<>): list of unique elements detailing all
-                possible hidden states the model should account for.
+                possible hidden states the model should account for. If default,
+                uses the values set previously through 'set_single_states'.
             all_obs (list<>): list of unique elements detailing all possible
-                observation elements the model should account for.
+                observation elements the model should account for. If default,
+                uses the values set previously through 'set_all_obs'.
             distribution (string): either 'random' for a random probability
                 distribution, or 'uniform' for a uniform probability
                 distribution. defaults to 'random'.
@@ -49,6 +121,10 @@ class HiddenMarkovModelBuilder:
         """
         if(distribution not in ('random', 'uniform')):
             raise ValueError("parameter 'distribution must be either 'random' or 'uniform'")
+        if(single_states is None):
+            single_states = self._single_states
+        if(all_obs is None):
+            all_obs = self._all_obs
 
         single_states = list(set(single_states))
         all_obs = list(set(all_obs))
@@ -80,51 +156,15 @@ class HiddenMarkovModelBuilder:
             order=highest_order
         )
 
-    def build(self, highest_order=1, k_smoothing=0.0):
+    def clear_all_sets(self):
         """
-        Builds a Hidden Markov Model based on the previously added
-            training examples.
-        Args:
-            highest_order (int): History window of hidden states. Defaults to 1.
-            k_smoothing (float): Parameter for add-k smoothing, a
-                generalization of Laplace smoothing. Defaults to 0.0.
-        Returns:
-            HiddenMarkovModel: capable of evaluating, decoding, and learning.
+        Deletes all training examples previously in the builder.
+        Deletes observation and hidden state vocabularies.
         """
-        if(highest_order < 1):
-            raise ValueError("highest order must be 1 or greater.")
-
-        # build state and observation sets
-        all_obs = self._get_unique_elements(self._obs_sequences)
-        all_states = self._get_higher_order_states(self._state_sequences, highest_order)
-        single_states = self._get_higher_order_states(self._state_sequences, 1)
-
-        # build probability distribution parameters
-        start_probs = list()
-        for i in range(highest_order):
-            start_probs.append(self._calculate_start_probs(
-                self._state_sequences,
-                i+1,
-                k_smoothing
-            ))
-        trans_probs = self._calculate_transition_probs(all_states, highest_order, k_smoothing)
-        emission_probs = self._calculate_emission_probs(single_states, all_obs, k_smoothing)
-
-        # combine all parameters to build final model
-        return HMM(
-            trans_probs,
-            emission_probs,
-            start_probs,
-            all_obs,
-            all_states,
-            single_states=single_states,
-            order=highest_order
-        )
-
-    def clear_training_examples(self):
-        """ Deletes all training examples previously in the builder """
         self._obs_sequences = list()
         self._state_sequences = list()
+        self._single_states = None
+        self._all_obs = None
 
     # ----------------- #
     #      Private      #

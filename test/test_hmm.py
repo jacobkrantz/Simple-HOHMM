@@ -2,7 +2,7 @@ import unittest
 
 from SimpleHOHMM import HiddenMarkovModel as HMM
 
-class TestHMMBuilder(unittest.TestCase):
+class TestHMM(unittest.TestCase):
 
     def setUp(self):
         all_observations = ['normal', 'cold', 'dizzy']

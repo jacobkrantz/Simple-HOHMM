@@ -5,7 +5,6 @@ from SimpleHOHMM import HiddenMarkovModelBuilder as Builder
 class TestHMMBuilder(unittest.TestCase):
 
     def setUp(self):
-        self._builder = Builder()
         self._obs = [
             ['normal', 'cold', 'dizzy', 'dizzy','normal','normal'],
             ['dizzy', 'cold', 'dizzy', 'normal','normal','normal'],
@@ -26,12 +25,14 @@ class TestHMMBuilder(unittest.TestCase):
         ]
 
     def tearDown(self):
-        self._builder = None
+        self._obs = None
+        self._states = None
 
-    def test_hmm_builder(self):
-        self._builder.add_batch_training_examples(self._obs, self._states)
+    def test_build(self):
+        builder = Builder()
+        builder.add_batch_training_examples(self._obs, self._states)
         for order in range(1, 5):
-            hmm = self._builder.build(highest_order=order, k_smoothing=.01)
+            hmm = builder.build(highest_order=order, k_smoothing=.01)
             params = hmm.get_parameters()
 
             for value in params.values():
@@ -49,3 +50,41 @@ class TestHMMBuilder(unittest.TestCase):
                 self.assertAlmostEqual(sum(params["A"][i]), 1)
             for i in range(2):
                 self.assertAlmostEqual(sum(params["B"][i]), 1)
+
+    def test_build_uniform(self):
+        builder = Builder()
+        builder.set_all_obs(['normal', 'cold', 'dizzy'])
+        builder.set_single_states(['healthy', 'fever'])
+        uniform_hmm = builder.build_unsupervised(distribution="uniform")
+        uniform_hmm_2 = builder.build_unsupervised(distribution="uniform")
+        self.assertEqual(
+            uniform_hmm.get_parameters(),
+            uniform_hmm_2.get_parameters()
+        )
+        params = uniform_hmm.get_parameters()
+        self.assertEqual(len(set(params["pi"][0].values())), 1)
+        for row in params["A"]:
+            self.assertEqual(len(set(row)), 1)
+            self.assertAlmostEqual(sum(row), 1)
+        for row in params["B"]:
+            self.assertEqual(len(set(row)), 1)
+            self.assertAlmostEqual(sum(row), 1)
+
+    def test_build_random(self):
+        builder = Builder()
+        builder.set_all_obs(['normal', 'cold', 'dizzy'])
+        builder.set_single_states(['healthy', 'fever'])
+        random_hmm = builder.build_unsupervised(distribution="random")
+
+        params = random_hmm.get_parameters()
+        self.assertAlmostEqual(sum(params["pi"][0].values()), 1)
+
+        self.assertGreater(len(params["A"]), 1)
+        for row in params["A"]:
+            self.assertGreater(len(row), 1)
+            self.assertAlmostEqual(sum(row), 1)
+
+        self.assertGreater(len(params["B"]), 1)
+        for row in params["B"]:
+            self.assertGreater(len(row), 1)
+            self.assertAlmostEqual(sum(row), 1)

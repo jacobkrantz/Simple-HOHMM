@@ -12,21 +12,26 @@ Simple-HOHMM is an end-to-end sequence classifier using Hidden Markov Models. Le
 	Given a set of observation sequences and an HMM, reestimate the model parameters so as to maximize the probabilities resulting from the Evaluation problem. Done with the *Baum Welch EM Algorithm*.
 
 #### Features
-* Learning is done either supervised through training examples of explicit counts or semi-supervised through some examples followed by a learning algorithm.
+* Learning is done in any manner desired: **supervised**, **semi-supervised**, or **unsupervised**. Supervised is done with training examples of explicit counts. Semi-supervised is generated with some examples followed by a learning algorithm. Unsupervised is done by creating a model of either uniformly or randomly distributed parameters followed by a learning algorithm.
 * Discrete (Multinomial) emissions only.
-* Ergotic state transitions are assumed by the model, but setting certain probabilities as zero effectively emulates unreachable states.
+* Ergotic state transitions are assumed by the model, but setting certain probabilities to zero effectively emulates unreachable states.
 * Smoothing of model parameters is done with additive k-smoothing to avoid cases of zero probability, especially useful for higher order modeling.
-* The Hidden Markov Model can be trained using the builder or by passing in explicit HMM parameter values.
-
-#### Requirements
-This project is currently written in pure python code with zero dependencies. Code has been tested and runs with both `Python 2.7 ` and `Python3.5`. Running with [pypy](https://pypy.org/) offers drastic speed improvements, consider this when working with large models.
+* `HiddenMarkovModel` can be trained using `HiddenMarkovModelBuiler` or by passing in explicit HMM parameter values.
 
 ## Getting Started
 
-Here we detail a basic example to get you up and running. Soon you will be able to take a more in-depth look at advanced modeling options.  
+#### Requirements
+This project is currently written in pure python code with zero dependencies. Code has been tested and runs with both `Python 2.7 ` and `Python 3.5`. Running with [pypy](https://pypy.org/) offers drastic speed improvements, consider this when working with large models.
+
+#### Installing Simple-HOHMM
+No official distribution currently exists for this project as the source code is still in flux. Know that a distribution is coming. To use the code now, just clone the repository:  
+`$ git clone https://github.com/jacobkrantz/Simple-HOHMM.git`  
+
+#### Documentation  
+Documentation consisting of API reference and basic tutorials will be hosted using [ReadTheDocs](https://readthedocs.org/). This not been developed yet. For now we detail a basic example to get you up and running. Soon you will be able to take a more in-depth look at advanced modeling options.  
 #### Example problem
 (adapted from Wikipedia)  
-Suppose villagers are either healthy or have a fever. Fevers are diagnosed by the doctor asking patients how they feel (normal, dizzy, or cold). Assuming their health can be modelled by a discrete Markov chain, the observations are `(normal, dizzy, cold)` and the hidden states are `(healthy, fever)`. The doctor has seen patients in the past, and kept that data. The observations are in one list and the states are in another such that `states[i]` corresponds to `observations[i]`:  
+Suppose villagers are either healthy or have a fever. Fevers are diagnosed by the doctor asking patients how they feel (normal, dizzy, or cold). Assuming their health can be modeled by a discrete Markov chain, the observations are `(normal, dizzy, cold)` and the hidden states are `(healthy, fever)`. The doctor has seen patients in the past, and kept that data. The observations are in one list and the states are in another such that `states[i]` corresponds to `observations[i]`:  
 ```python
 observations = [
   ['normal', 'cold', 'dizzy', 'dizzy','normal','normal'],
