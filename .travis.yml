@@ -1,0 +1,16 @@
+language: python
+sudo: false
+
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "pypy"
+  - "pypy3"
+
+branches:
+  only:
+    - master
+
+script:
+  - python -m unittest discover -s test
