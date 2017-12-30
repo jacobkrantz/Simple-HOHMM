@@ -1,7 +1,8 @@
 # Simple-HOHMM  
 
 [![Build Status](https://travis-ci.org/jacobkrantz/Simple-HOHMM.svg?branch=master)](https://travis-ci.org/jacobkrantz/Simple-HOHMM)
-[![Coverage Status](https://coveralls.io/repos/github/jacobkrantz/Simple-HOHMM/badge.svg?branch=master)](https://coveralls.io/github/jacobkrantz/Simple-HOHMM?branch=master)  
+[![Coverage Status](https://coveralls.io/repos/github/jacobkrantz/Simple-HOHMM/badge.svg?branch=master)](https://coveralls.io/github/jacobkrantz/Simple-HOHMM?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/simple-hohmm/badge/?version=latest)](http://simple-hohmm.readthedocs.io/en/latest/?badge=latest)  
 
 Simple-HOHMM is an end-to-end sequence classifier using Hidden Markov Models. Let the builder construct a model for you based on chosen model attributes. Now you can solve the classic problems of HMMs: evaluating, decoding, and learning. Play with different orders of history to maximize the accuracy of your model!
 
@@ -32,7 +33,7 @@ No official distribution currently exists for this project as the source code is
 `$ git clone https://github.com/jacobkrantz/Simple-HOHMM.git`  
 
 #### Documentation  
-Documentation consisting of API reference and basic tutorials will be hosted using [ReadTheDocs](https://readthedocs.org/). This not been developed yet. For now we detail a basic example to get you up and running. Soon you will be able to take a more in-depth look at advanced modeling options.  
+[Documentation](http://simple-hohmm.readthedocs.io/en/latest/?badge=latest) consisting of API reference and basic tutorials is live but has not been developed yet. For now we detail a basic example to get you up and running. Soon you will be able to take a more in-depth look at advanced modeling options.  
 #### Example problem
 (adapted from Wikipedia)  
 Suppose villagers are either healthy or have a fever. Fevers are diagnosed by the doctor asking patients how they feel (normal, dizzy, or cold). Assuming their health can be modeled by a discrete Markov chain, the observations are `(normal, dizzy, cold)` and the hidden states are `(healthy, fever)`. The doctor has seen patients in the past, and kept that data. The observations are in one list and the states are in another such that `states[i]` corresponds to `observations[i]`:  
