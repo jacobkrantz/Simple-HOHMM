@@ -31,7 +31,7 @@ This project is currently written in pure python code with zero dependencies. Co
 #### Installing Simple-HOHMM
 No distribution exists on PyPI as the source code is still in flux. To use the code now, you can install it directly from the repository.  
 Easy way:  
-`pip install git+https://github.com/jacobkrantz/Simple-HOHMM.git`  
+`>>> pip install git+https://github.com/jacobkrantz/Simple-HOHMM.git`  
 long way:  
 ```
 >>> git clone https://github.com/jacobkrantz/Simple-HOHMM.git
