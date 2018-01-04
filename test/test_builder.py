@@ -61,6 +61,7 @@ class TestHMMBuilder(unittest.TestCase):
             uniform_hmm.get_parameters(),
             uniform_hmm_2.get_parameters()
         )
+
         params = uniform_hmm.get_parameters()
         self.assertEqual(len(set(params["pi"][0].values())), 1)
         for row in params["A"]:
@@ -75,10 +76,14 @@ class TestHMMBuilder(unittest.TestCase):
         builder.set_all_obs(['normal', 'cold', 'dizzy'])
         builder.set_single_states(['healthy', 'fever'])
         random_hmm = builder.build_unsupervised(distribution="random")
+        random_hmm_2 = builder.build_unsupervised(distribution="random")
+        self.assertNotEqual( # ignore small chance they could be the same
+            random_hmm.get_parameters(),
+            random_hmm_2.get_parameters()
+        )
 
         params = random_hmm.get_parameters()
         self.assertAlmostEqual(sum(params["pi"][0].values()), 1)
-
         self.assertGreater(len(params["A"]), 1)
         for row in params["A"]:
             self.assertGreater(len(row), 1)

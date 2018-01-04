@@ -92,9 +92,10 @@ class HiddenMarkovModel:
         )) / num_sequences
 
         while True:
-            map(lambda O: self._train(O, k_smoothing), sequences)
-            cur_iterations += 1
+            for seq in sequences:
+                self._train(seq, k_smoothing)
 
+            cur_iterations += 1
             new_score = sum(map(
                 lambda O: log(self.evaluate(O)),
                 sequences
