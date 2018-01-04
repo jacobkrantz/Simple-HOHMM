@@ -26,11 +26,19 @@ Simple-HOHMM is an end-to-end sequence classifier using Hidden Markov Models. Le
 ## Getting Started
 
 #### Requirements
-This project is currently written in pure python code with zero dependencies. Code has been tested and runs with both `Python 2.7 ` and `Python 3.5`. Running with [pypy](https://pypy.org/) offers drastic speed improvements, consider this when working with large models.
+This project is currently written in pure python code with zero dependencies. Code has been tested and runs with both Python 2, Python 3, and [pypy](https://pypy.org/). Running with pypy offers drastic speed improvements, consider this when working with large models.
 
 #### Installing Simple-HOHMM
-No official distribution currently exists for this project as the source code is still in flux. Know that a distribution is coming. To use the code now, just clone the repository:  
-`$ git clone https://github.com/jacobkrantz/Simple-HOHMM.git`  
+No distribution exists on PyPI as the source code is still in flux. To use the code now, you can install it directly from the repository.  
+Easy way:  
+`pip install git+https://github.com/jacobkrantz/Simple-HOHMM.git`  
+long way:  
+```
+>>> git clone https://github.com/jacobkrantz/Simple-HOHMM.git
+>>> cd Simple-HOHMM
+>>> python setup.py test
+>>> python setup.py install
+```
 
 #### Documentation  
 [Documentation](http://simple-hohmm.readthedocs.io/en/latest/?badge=latest) consisting of API reference and basic tutorials is live but has not been developed yet. For now we detail a basic example to get you up and running. Soon you will be able to take a more in-depth look at advanced modeling options.  
@@ -65,7 +73,8 @@ states = hmm.decode(obs)
 print(states) # prints: ['healthy', 'healthy', 'fever']
 ```
 ## Contributions
-Contributions are welcome. We have not hashed out exactly what that will look like yet. For now, feel free to fork the repository and dive in as you see fit, whether that is making/improving documentation, tutorials, test cases, issues, or source code.
+Contributions are welcome. We have not hashed out exactly what that will look like yet. For now, feel free to fork the repository and dive in as you see fit, whether that is making/improving documentation, tutorials, test cases, issues, or source code. Contributors should have all dependencies installed from `requirements.txt`. This can be done using:  
+ `>>> pip install -r requirements.txt`
 
 #### Testing
 Run the unit tests before opening a pull request to ensure the build does not break.   
@@ -74,12 +83,24 @@ Run the unit tests before opening a pull request to ensure the build does not br
 * All test cases are located in `/test`.  
 
 To run the entire suite of tests, execute:  
-`python -m unittest discover -s test`
+`>>> python -m unittest discover -s test`  
+alternatively:  
+`>>> python setup.py test`
+
+#### Documentation
+Docs are built using Sphinx and hosted using ReadTheDocs. You can edit the docs by updating the `.rst` files in the `/docs` folder.  
+Make the documentation:
+```
+>>> cd docs
+>>> make html
+```  
+View in browser:  
+`>>> xdg-open build/html/index.html` (if using linux)  
+`>>> open build/html/index.html` (if mac)
 
 #### Viewing Code Coverage  
-View code coverage before opening a pull request to ensure coverage is maintained or improved. To do this, you must have `coverage` installed. If you do not, run:  
-`$ pip install coverage`  
+View code coverage before opening a pull request to ensure coverage is maintained or improved.   
 run the unit tests using coverage:  
-`$ coverage run -m unittest discover -s test`  
+`>>> coverage run -m unittest discover -s test`  
 View the coverage report:  
-`$ coverage report -m`  
+`>>> coverage report -m`  
