@@ -22,6 +22,7 @@ def setup_package():
         author=_info["author"],
         author_email=_info["author_email"],
         packages=['SimpleHOHMM'],
+        package_data={'SimpleHOHMM': ['package_info.json']},
         url='https://simple-hohmm.readthedocs.io',
         license='LICENSE.txt',
         description='High Order Hidden Markov Model for sequence classification',
