@@ -26,52 +26,16 @@ Simple-HOHMM is an end-to-end sequence classifier using Hidden Markov Models. Le
 ## Getting Started
 
 #### Requirements
-This project is currently written in pure python code with zero dependencies. Code has been tested and runs with both Python 2, Python 3, and [pypy](https://pypy.org/). Running with pypy offers drastic speed improvements, consider this when working with large models.
+This project is currently written in pure python code with zero dependencies for installation. Code has been tested and runs with Python 2, Python 3, and [pypy](https://pypy.org/). Running with pypy offers drastic speed improvements, consider this when working with large models.
 
 #### Installing Simple-HOHMM
-No distribution exists on PyPI as the source code is still in flux. To use the code now, you can install it directly from the repository.  
-Easy way:  
+No distribution exists on PyPI yet. To use the code now, you can install it directly from the repository:  
 `>>> pip install git+https://github.com/jacobkrantz/Simple-HOHMM.git`  
-long way:  
-```
->>> git clone https://github.com/jacobkrantz/Simple-HOHMM.git
->>> cd Simple-HOHMM
->>> python setup.py test
->>> python setup.py install
-```
+Take a look at the documentation to view all methods of installation.  
 
 #### Documentation  
-[Documentation](http://simple-hohmm.readthedocs.io/en/latest/?badge=latest) consisting of API reference and basic tutorials is live but has not been developed yet. For now we detail a basic example to get you up and running. Soon you will be able to take a more in-depth look at advanced modeling options.  
-#### Example problem
-(adapted from Wikipedia)  
-Suppose villagers are either healthy or have a fever. Fevers are diagnosed by the doctor asking patients how they feel (normal, dizzy, or cold). Assuming their health can be modeled by a discrete Markov chain, the observations are `(normal, dizzy, cold)` and the hidden states are `(healthy, fever)`. The doctor has seen patients in the past, and kept that data. The observations are in one list and the states are in another such that `states[i]` corresponds to `observations[i]`:  
-```python
-observations = [
-  ['normal', 'cold', 'dizzy', 'dizzy','normal','normal'],
-  ['cold', 'cold', 'dizzy', 'normal','normal','normal'],
-  ['dizzy', 'dizzy', 'cold', 'normal', 'dizzy', 'normal'],
-  ['normal', 'normal', 'cold', 'dizzy', 'dizzy', 'dizzy']
-]
-states = [
-	['healthy', 'healthy', 'fever', 'fever', 'healthy', 'healthy'],
-	['healthy', 'fever', 'fever', 'healthy', 'healthy', 'fever'],
-	['fever', 'fever', 'fever', 'healthy', 'healthy', 'healthy'],
-	['healthy', 'healthy', 'healthy', 'fever', 'fever', 'fever']
-]
-```
-We can now build a first order Hidden Markov Model based on the observations and states above:
-```python
-from SimpleHOHMM import HiddenMarkovModelBuilder as Builder
-builder = Builder()
-builder.add_batch_training_examples(observations, states)
-hmm = builder.build()
-```
-Now suppose a patient has been seeing the doctor for three days and felt `(normal, cold, dizzy)`. What might the doctor guess about this patient's health? This is solved with Viterbi decoding:  
-```python
-obs =  ['normal', 'cold', 'dizzy']
-states = hmm.decode(obs)
-print(states) # prints: ['healthy', 'healthy', 'fever']
-```
+[Documentation](http://simple-hohmm.readthedocs.io/en/latest/?badge=latest) consisting of API reference and basic tutorials is live but the API reference not been developed yet. The tutorials there should get you up and running in the general use cases.  
+
 ## Contributions
 Contributions are welcome. We have not hashed out exactly what that will look like yet. For now, feel free to fork the repository and dive in as you see fit, whether that is making/improving documentation, tutorials, test cases, issues, or source code. Contributors should have all dependencies installed from `requirements.txt`. This can be done using:  
  `>>> pip install -r requirements.txt`
@@ -82,7 +46,7 @@ Run the unit tests before opening a pull request to ensure the build does not br
 * Automated testing is performed by Travis CI.
 * All test cases are located in `/test`.  
 
-To run the entire suite of tests, execute:  
+To run the entire suite of tests locally, execute:  
 `>>> python -m unittest discover -s test`  
 alternatively:  
 `>>> python setup.py test`
