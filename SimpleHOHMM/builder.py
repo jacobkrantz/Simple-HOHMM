@@ -83,7 +83,7 @@ class HiddenMarkovModelBuilder:
         start_probs = list()
         for i in range(highest_order):
             start_probs.append(self._calculate_start_probs(
-                self._state_sequences,
+                single_states,
                 i+1,
                 k_smoothing
             ))
@@ -263,16 +263,11 @@ class HiddenMarkovModelBuilder:
 
         return list(all_states_set)
 
-    def _calculate_start_probs(self, state_sequences, order, k_smoothing):
-        """
-        Note: could cause OOV for higher order states. Come back to this.
-        Solution: instead of states = _get_higher_order_states, do
-        states = permutations(single_states, order)
-        """
+    def _calculate_start_probs(self, single_states, order, k_smoothing):
         start_probs_dict = dict()
 
         # initialize dictionary to state:0
-        states = self._get_higher_order_states(state_sequences, order)
+        states = self._make_permutations(single_states, order)
         for state in states:
             start_probs_dict[state] = 0 + k_smoothing
 
