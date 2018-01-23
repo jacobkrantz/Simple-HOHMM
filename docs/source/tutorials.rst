@@ -82,4 +82,46 @@ We now determine the updated likelihood and hidden state sequence. Notice that r
 Unsupervised
 ------------
 
-TODO: Tutorial for training an HMM without any explicit prior examples.
+In fully unsupervised scenarios, we build and train a model with no prior training examples to draw from. The only data we supply to our model is the set of possible observations, the set of possible hidden states, and a collection of observation sequences to optimize for.
+
+We first gather the data to supply to our model:
+::
+
+	possible_observations = ['normal', 'healthy', 'dizzy']
+	possible_states = ['healthy', 'fever']
+	sequences = [
+		['normal', 'cold', 'dizzy','normal','normal'],
+		['normal', 'cold', 'normal','dizzy','normal'],
+		['dizzy', 'dizzy', 'dizzy','cold','normal'],
+		['dizzy', 'dizzy', 'normal','normal','normal'],
+		['cold', 'cold', 'dizzy','normal','normal'],
+		['normal', 'dizzy', 'dizzy','normal','cold'], #start new here
+		['normal', 'cold', 'dizzy', 'dizzy','normal','normal'],
+		['dizzy', 'cold', 'dizzy', 'normal','normal','normal'],
+		['dizzy', 'cold', 'dizzy', 'normal','normal','normal'],
+		['normal', 'cold', 'dizzy', 'dizzy','cold','normal'],
+		['dizzy', 'dizzy', 'dizzy', 'dizzy', 'cold', 'cold'],
+		['cold', 'cold', 'cold', 'normal', 'dizzy', 'normal'],
+		['dizzy', 'normal', 'cold', 'cold', 'dizzy', 'dizzy']
+	]
+
+There are two initial distributions to choose from, either ``uniform`` or ``random``. This selection applies to model parameters A, B, pi. In our case we will initialize with a random distribution:
+::
+
+	from SimpleHOHMM import HiddenMarkovModelBuilder as Builder
+	builder = Builder()
+	hmm = builder.build_unsupervised(
+		single_states=possible_states,
+		all_obs=possible_observations,
+		distribution="random",
+		highest_order=2
+	)
+
+We can view the initial model parameters, train our model using Baum-Welch EM, then again view our parameters to see how they have been modified:
+::
+
+	hmm.display_parameters()
+	hmm.learn(sequences, k_smoothing=0.001)
+	hmm.display_parameters()
+
+Results may be inconsistent due to the random initial distributions. You can play with different k_smoothing values, delta values, and sequence selection. Of course, train on prior examples where possible.
