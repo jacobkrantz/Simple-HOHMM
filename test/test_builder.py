@@ -31,25 +31,53 @@ class TestHMMBuilder(unittest.TestCase):
     def test_build(self):
         builder = Builder()
         builder.add_batch_training_examples(self._obs, self._states)
-        for order in range(1, 5):
-            hmm = builder.build(highest_order=order, k_smoothing=.01)
-            params = hmm.get_parameters()
+        for do_synthesize in [True, False]:
+            for order in range(1, 5):
+                hmm = builder.build(
+                    highest_order=order,
+                    k_smoothing=.01,
+                    synthesize_states=do_synthesize
+                )
+                self._test_parameters(hmm.get_parameters(), order)
 
-            for value in params.values():
-                self.assertIsNotNone(value)
-            for i in range(order):
-                self.assertAlmostEqual(sum(params["pi"][i].values()), 1)
-            self.assertLessEqual(
-                len(params["single_states"]),
-                len(params["all_states"])
-            )
-            if(order > 1):
-                continue
+    def test_build_synthesize(self):
+        builder = Builder()
+        builder.add_batch_training_examples(self._obs, self._states)
+        hmm_synth = builder.build(
+            highest_order=3,
+            k_smoothing=.01,
+            synthesize_states=True
+        )
+        hmm_no_synth = builder.build(
+            highest_order=3,
+            k_smoothing=.01,
+            synthesize_states=False
+        )
+        params_synth = hmm_synth.get_parameters()
+        params = hmm_no_synth.get_parameters()
+        # there should be more possible starting states with params_synth
+        self.assertGreater(len(params_synth["pi"][2]), len(params["pi"][2]))
+        # there should be more possible state transitions with params_synth
+        self.assertGreater(len(params_synth["A"]), len(params["A"]))
+        self.assertEqual(len(params_synth["B"]), len(params["B"]))
 
-            for i in range(2):
-                self.assertAlmostEqual(sum(params["A"][i]), 1)
-            for i in range(2):
-                self.assertAlmostEqual(sum(params["B"][i]), 1)
+    def test_set_states_before_build(self):
+        builder = Builder()
+        builder.add_batch_training_examples(self._obs, self._states)
+        builder.set_all_obs(['normal', 'cold', 'dizzy'])
+        builder.set_single_states(['fever', 'healthy', 'blah'])
+        hmm = builder.build(
+            highest_order=2,
+            k_smoothing=.01,
+            synthesize_states=False
+        )
+        hmm2 = builder.build(
+            highest_order=2,
+            k_smoothing=.01,
+            synthesize_states=True
+        )
+        self._test_parameters(hmm.get_parameters(), 2)
+        self.assertEqual(hmm.get_parameters(), hmm2.get_parameters())
 
     def test_build_uniform(self):
         builder = Builder()
@@ -93,3 +121,20 @@ class TestHMMBuilder(unittest.TestCase):
         for row in params["B"]:
             self.assertGreater(len(row), 1)
             self.assertAlmostEqual(sum(row), 1)
+
+    def _test_parameters(self, params, order):
+        for value in params.values():
+            self.assertIsNotNone(value)
+        for i in range(order):
+            self.assertAlmostEqual(sum(params["pi"][i].values()), 1)
+        self.assertLessEqual(
+            len(params["single_states"]),
+            len(params["all_states"])
+        )
+        if(order > 1):
+            return
+
+        for i in range(2):
+            self.assertAlmostEqual(sum(params["A"][i]), 1)
+        for i in range(2):
+            self.assertAlmostEqual(sum(params["B"][i]), 1)

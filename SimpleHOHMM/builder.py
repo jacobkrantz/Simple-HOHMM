@@ -52,7 +52,7 @@ class HiddenMarkovModelBuilder:
         """
         self._all_obs = all_obs
 
-    def build(self, highest_order=1, k_smoothing=0.0):
+    def build(self, highest_order=1, k_smoothing=0.0, synthesize_states=False):
         """
         Builds a Hidden Markov Model based on the previously added
             training examples.
@@ -60,6 +60,9 @@ class HiddenMarkovModelBuilder:
             highest_order (int): History window of hidden states. Defaults to 1.
             k_smoothing (float): Parameter for add-k smoothing, a
                 generalization of Laplace smoothing. Defaults to 0.0.
+            synthesize_states (boolean): Generate all states from permutations
+                of single states. Avoids OOV for higher order models and
+                and ensures model is fully ergodic.
         Returns:
             HiddenMarkovModel: capable of evaluating, decoding, and learning.
         """
@@ -74,8 +77,12 @@ class HiddenMarkovModelBuilder:
 
         if(self._single_states is None):
             single_states = self._get_higher_order_states(self._state_sequences, 1)
-            all_states = self._get_higher_order_states(self._state_sequences, highest_order)
+            if(synthesize_states):
+                all_states = self._make_permutations(single_states, highest_order)
+            else:
+                all_states = self._get_higher_order_states(self._state_sequences, highest_order)
         else:
+            synthesize_states = True
             single_states = self._single_states
             all_states = self._make_permutations(single_states, highest_order)
 
@@ -83,9 +90,11 @@ class HiddenMarkovModelBuilder:
         start_probs = list()
         for i in range(highest_order):
             start_probs.append(self._calculate_start_probs(
+                self._state_sequences,
                 single_states,
                 i+1,
-                k_smoothing
+                k_smoothing,
+                synthesize_states
             ))
         trans_probs = self._calculate_transition_probs(all_states, highest_order, k_smoothing)
         emission_probs = self._calculate_emission_probs(single_states, all_obs, k_smoothing)
@@ -263,17 +272,33 @@ class HiddenMarkovModelBuilder:
 
         return list(all_states_set)
 
-    def _calculate_start_probs(self, single_states, order, k_smoothing):
+    def _calculate_start_probs(self, state_sequences, single_states, order, k_smoothing, synthesize_states):
+        """
+        Calculates the starting probability distribution for a given order.
+        Args:
+            state_sequences (list<list<char>>): Hidden state sequences
+            single_states (list<string>): list of possible singular hidden
+                states. These states should disregard HMM order.
+            order (int): History window of hidden states.
+            k_smoothing (float): Parameter for add-k smoothing, a
+                generalization of Laplace smoothing.
+            synthesize_states (boolean): if True, creates states
+        Returns:
+            dict[state:probability]
+        """
         start_probs_dict = dict()
 
         # initialize dictionary to state:0
-        states = self._make_permutations(single_states, order)
+        if synthesize_states:
+            states = self._make_permutations(single_states, order)
+        else:
+            states = self._get_higher_order_states(state_sequences, order)
         for state in states:
             start_probs_dict[state] = 0 + k_smoothing
 
         # insert counts
         start_state_emissions = 0
-        for state_seq in self._state_sequences:
+        for state_seq in state_sequences:
             if(len(state_seq) < order):
                 continue
 
