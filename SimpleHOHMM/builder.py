@@ -20,8 +20,8 @@ class HiddenMarkovModelBuilder:
             o (list<char>): Observation sequence
             s (list<char>): Hidden state sequence
         """
-        self._obs_sequences.add(o)
-        self._state_sequences.add(s)
+        self._obs_sequences.append(o)
+        self._state_sequences.append(s)
 
     def add_batch_training_examples(self, o_lst, s_lst):
         """

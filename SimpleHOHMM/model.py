@@ -333,7 +333,7 @@ class HiddenMarkovModel:
                 gamma[s_index][o_index] = prob
 
         # buid xi
-        xi = init_3d_matrix(rows, rows, columns - 1, "float")
+        xi = init_3d_matrix(rows, rows, columns - 1)
         for o_index in range(columns - 1):
             obs = sequence[o_index]
             obs_next = sequence[o_index + 1]

@@ -28,28 +28,19 @@ def init_matrix(rows, columns, data_type="float"):
         matrix.append(deepcopy(row))
     return matrix
 
-def init_3d_matrix(x, y, z, data_type="float"):
+def init_3d_matrix(x, y, z):
     """
-    Initialize a 3-dim matrix using lists with provided size: (X,Y,Z)
+    Initialize a 3-dim matrix using lists with provided size: (X,Y,Z).
     Args:
         x (int)
         y (int)
         z (int)
-        data_type (string) must be one of:
-            'float': 0.0 | 'int': 0 | 'int,int': tuple(0,0)
     Return:
-        the zero matrix of specified size and type
+        the zero matrix of specified size with zeroed float values.
     """
-    if(data_type == 'int'):
-        item = 0
-    elif(data_type == 'float'):
-        item = 0.0
-    elif(data_type == 'int,int'):
-        item = (0,0)
-
     d1 = []
     for i in range(z):
-        d1.append(item)
+        d1.append(0.0)
 
     d2 = []
     for j in range(y):

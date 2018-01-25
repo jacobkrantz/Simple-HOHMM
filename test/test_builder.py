@@ -30,7 +30,8 @@ class TestHMMBuilder(unittest.TestCase):
 
     def test_build(self):
         builder = Builder()
-        builder.add_batch_training_examples(self._obs, self._states)
+        builder.add_training_example(self._obs[0], self._states[0])
+        builder.add_batch_training_examples(self._obs[1:], self._states[1:])
         for do_synthesize in [True, False]:
             for order in range(1, 5):
                 hmm = builder.build(
@@ -138,3 +139,12 @@ class TestHMMBuilder(unittest.TestCase):
             self.assertAlmostEqual(sum(params["A"][i]), 1)
         for i in range(2):
             self.assertAlmostEqual(sum(params["B"][i]), 1)
+
+    def test_clear_all_sets(self):
+        builder = Builder()
+        builder.add_training_example(self._obs[0], self._states[0])
+        builder.clear_all_sets()
+        self.assertEqual(len(builder._obs_sequences), 0)
+        self.assertEqual(len(builder._state_sequences), 0)
+        self.assertIsNone(builder._single_states)
+        self.assertIsNone(builder._all_obs)
