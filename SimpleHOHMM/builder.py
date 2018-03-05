@@ -41,7 +41,7 @@ class HiddenMarkovModelBuilder:
             single_states (list<string>): list of possible singular hidden
                 states. These states should disregard HMM order.
         """
-        self._single_states = single_states
+        self._single_states = list(single_states)
 
     def set_all_obs(self, all_obs):
         """
@@ -50,7 +50,7 @@ class HiddenMarkovModelBuilder:
         Args:
             all_obs (list<string>): list of possible model observations.
         """
-        self._all_obs = all_obs
+        self._all_obs = list(all_obs)
 
     def build(self, highest_order=1, k_smoothing=0.0, synthesize_states=False):
         """

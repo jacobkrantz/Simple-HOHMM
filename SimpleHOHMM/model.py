@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from itertools import chain
 from math import log
 
 from .utility import init_matrix, init_3d_matrix
@@ -37,6 +38,7 @@ class HiddenMarkovModel:
         Returns:
             float: probability of sequence being emitted
         """
+        self._check_legal_sequence(sequence)
         if(len(sequence) == 0):
             return 0
 
@@ -56,6 +58,7 @@ class HiddenMarkovModel:
         Returns:
             list<string>: hidden state sequence S
         """
+        self._check_legal_sequence(sequence)
         if(len(sequence) == 0):
             return []
         return self._viterbi(sequence)
@@ -80,6 +83,7 @@ class HiddenMarkovModel:
         Returns:
             (int): number of iterations to achieve convergence.
         """
+        self._check_legal_sequence(set(chain.from_iterable(sequences)))
         num_sequences = len(sequences)
 
         cur_iterations = 0
@@ -135,6 +139,18 @@ class HiddenMarkovModel:
     # ----------------- #
     #      Private      #
     # ----------------- #
+
+    def _check_legal_sequence(self, seq):
+        """ Throws ValueError if an element of seq is not in self._all_obs """
+        illegal_obs = list([x for x in seq if x not in self._all_obs])
+        if(len(illegal_obs) == 0):
+            return True
+
+        if(len(illegal_obs) == 1):
+            msg = "Observation out of vocabulary: '"
+        else:
+            msg = "Observations out of vocabulary: '"
+        raise ValueError(msg + ", ".join(illegal_obs) + "'")
 
     def _forward(self, sequence):
         rows = len(self._all_states)
