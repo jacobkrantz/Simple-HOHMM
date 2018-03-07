@@ -140,6 +140,22 @@ class TestHMMBuilder(unittest.TestCase):
         for i in range(2):
             self.assertAlmostEqual(sum(params["B"][i]), 1)
 
+    def test_start_probs_parameters(self):
+        # test for when include_pi = false (all entries should be 1)
+        builder = Builder()
+        builder.add_batch_training_examples(self._obs, self._states)
+        for order in range(1, 3):
+            hmm = builder.build(
+                highest_order=order,
+                k_smoothing=.01,
+                synthesize_states=True,
+                include_pi=False
+            )
+            params = hmm.get_parameters()
+            pi = params["pi"]
+            for i in range(order):
+                [self.assertEqual(v, 1) for v in pi[i].values()]
+
     def test_clear_all_sets(self):
         builder = Builder()
         builder.add_training_example(self._obs[0], self._states[0])

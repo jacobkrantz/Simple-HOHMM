@@ -52,7 +52,7 @@ class HiddenMarkovModelBuilder:
         """
         self._all_obs = list(all_obs)
 
-    def build(self, highest_order=1, k_smoothing=0.0, synthesize_states=False):
+    def build(self, highest_order=1, k_smoothing=0.0, synthesize_states=False, include_pi=True):
         """
         Builds a Hidden Markov Model based on the previously added
             training examples.
@@ -63,6 +63,9 @@ class HiddenMarkovModelBuilder:
             synthesize_states (boolean): Generate all states from permutations
                 of single states. Avoids OOV for higher order models and
                 and ensures model is fully ergodic.
+            include_pi (boolean): True if the starting probabilities should be
+                calculated from explicit training counts. False if the starting
+                probabilities should all be set to 1 and thus ignored.
         Returns:
             HiddenMarkovModel: capable of evaluating, decoding, and learning.
         """
@@ -90,12 +93,14 @@ class HiddenMarkovModelBuilder:
         start_probs = list()
         for i in range(highest_order):
             start_probs.append(self._calculate_start_probs(
-                self._state_sequences,
-                single_states,
-                i+1,
-                k_smoothing,
-                synthesize_states
+                state_sequences = self._state_sequences,
+                single_states = single_states,
+                order = i+1,
+                k_smoothing = k_smoothing,
+                synthesize_states = synthesize_states,
+                set_to_1 = not include_pi
             ))
+
         trans_probs = self._calculate_transition_probs(all_states, highest_order, k_smoothing)
         emission_probs = self._calculate_emission_probs(single_states, all_obs, k_smoothing)
 
@@ -210,6 +215,9 @@ class HiddenMarkovModelBuilder:
         # normalize such that for all rows sum(trans_probs[state][s0...sn]) == 1
         for prev_index in range(matrix_size):
             divisor = state_trans_dict[all_states[prev_index]]
+            if divisor == 0 and k_smoothing == 0:
+                continue # avoid ZeroDivisionError
+
             for cur_index in range(matrix_size):
                 trans_probs[prev_index][cur_index] += k_smoothing
                 trans_probs[prev_index][cur_index] /= float(
@@ -272,7 +280,7 @@ class HiddenMarkovModelBuilder:
 
         return list(all_states_set)
 
-    def _calculate_start_probs(self, state_sequences, single_states, order, k_smoothing, synthesize_states):
+    def _calculate_start_probs(self, state_sequences, single_states, order, k_smoothing, synthesize_states, set_to_1):
         """
         Calculates the starting probability distribution for a given order.
         Args:
@@ -283,18 +291,24 @@ class HiddenMarkovModelBuilder:
             k_smoothing (float): Parameter for add-k smoothing, a
                 generalization of Laplace smoothing.
             synthesize_states (boolean): if True, creates states
+            set_to_1 (boolean): set all starting probabilities to 1 if true.
+                Otherwise, calculate and normalize from training counts.
         Returns:
             dict[state:probability]
         """
         start_probs_dict = dict()
 
-        # initialize dictionary to state:0
+        # initialize dictionary to state:initial count
         if synthesize_states:
             states = self._make_permutations(single_states, order)
         else:
             states = self._get_higher_order_states(state_sequences, order)
+
         for state in states:
-            start_probs_dict[state] = 0 + k_smoothing
+            start_probs_dict[state] = 1 if set_to_1 else k_smoothing
+
+        if set_to_1:
+            return start_probs_dict
 
         # insert counts
         start_state_emissions = 0
