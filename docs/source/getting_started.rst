@@ -35,3 +35,13 @@ If this fails, try installing ``pip`` for ``pypy`` first:
 
 	>>> curl -O https://bootstrap.pypa.io/get-pip.py
 	>>> pypy get-pip.py
+
+If you want the most recent staging build still with ``pypy``:
+::
+
+ 	>>> pypy -m pip install git+https://github.com/jacobkrantz/Simple-HOHMM.git@staging
+
+Alternative staging branch with ``pypy``:
+::
+
+	>>> sudo pypy -m pip install --upgrade https://github.com/jacobkrantz/Simple-HOHMM/archive/staging.zip
